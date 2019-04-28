@@ -20,8 +20,8 @@ def parse_args():
                             help='the target size of input images')
     data_group.add_argument('--valid_batch', type=int, default=32,
                             help='batch size during validation')
-    data_group.add_argument('--batch_per_class', type=int, default=2,
-                            help='batch size per class, batch_size = batch_per_class * num_class')
+    data_group.add_argument('--num_sample_per_class_per_batch', type=int, default=2,
+                            help='defines batch size per class, batch_size = num_sample_per_class_per_batch * num_class')
 
     augment_group = parser.add_argument_group('augment')
     augment_group.add_argument('--shear_range', type=float, default=0.2)
@@ -57,7 +57,7 @@ def parse_args():
 def main(args):
     print('Preparing Model...')
     model = get_model(args.num_class)
-    if args.model_weights is not None:
+    if args.weight_path is not None:
         # Continue the previous training
         print('Loading saved model: \'{}\'.'.format(args.model_weights))
         model.load_weights(args.model_weights)
@@ -73,7 +73,7 @@ def main(args):
     datagen_train = datagen_train.flow_from_directory(
         args.train_path,
         target_size=(args.img_size[0], args.img_size[1]),
-        class_size_per_batch=args.class_size_per_batch)
+        class_size_per_batch=args.num_sample_per_class_per_batch)
     datagen_valid = ImageDataGenerator(rescale=1./255).flow_from_directory(
         args.valid_path,
         target_size=(args.img_size[0], args.img_size[1]),
@@ -82,11 +82,11 @@ def main(args):
     if args.warmup:
         print("Warm up...")
         model = freeze_all_but_top(model)
-        model = model.fit_generator(
+        model.fit_generator(
             datagen_train,
-            steps_per_epoch=len(datagen_train),
+            steps_per_epoch=20,
             validation_data=datagen_valid,
-            validation_steps=len(datagen_valid),
+            validation_steps=10,
             epochs=args.warmup_epoch)
 
     print('Model Training...')
@@ -101,13 +101,13 @@ def main(args):
     callbacks.append(BatchSizeAdapter((datagen_train, datagen_valid), len(datagen_valid)))
 
     model = freeze_all_but_mid_and_top(model)
-    model = model.fit_generator(
-                datagen_train,
-                steps_per_epoch=len(datagen_train),
-                validation_data=datagen_valid,
-                validation_steps=len(datagen_valid),
-                epochs=args.epoch,
-                callbacks=callbacks)
+    model.fit_generator(
+        datagen_train,
+        steps_per_epoch=20,
+        validation_data=datagen_valid,
+        validation_steps=10,
+        epochs=args.epoch,
+        callbacks=callbacks)
 
 
 if __name__ == '__main__':

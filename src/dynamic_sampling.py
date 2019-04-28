@@ -4,7 +4,7 @@ import numpy as np
 from keras import backend as K
 from keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array, array_to_img
 import keras.callbacks
-from sklearn.metrics import f1_score
+from sklearn.metrics import confusion_matrix
 
 
 class DynamicSamplingImageDataGenerator(ImageDataGenerator):
@@ -283,7 +283,25 @@ class BatchSizeAdapter(keras.callbacks.Callback):
                 y_true = np.append(y_true, np.argmax(batch_y[i]))
                 y_pred = np.append(y_pred, np.argmax(batch_y_pred[i]))
 
-        f1 = f1_score(y_true, y_pred, labels=np.array(range(self.num_class)))
+        cf = confusion_matrix(y_true, y_pred, labels=np.array(range(self.num_class)))
+
+        precision = np.array([])
+        recall = np.array([])
+        for i in range(len(cf)):
+            if np.sum(cf[i]) == 0:
+                precision = np.append(precision, 1)
+            else:
+                precision = np.append(precision, cf[i][i] / np.sum(cf[i]))
+            if np.sum(cf, axis=0)[i] == 0:
+                recall = np.append(recall, 0)
+            else:
+                recall = np.append(recall, cf[i][i] / np.sum(cf, axis=0)[i])
+        f1 = np.zeros((len(cf)))
+        for i in range(len(cf)):
+            if precision[i]+recall[i] == 0:
+              f1[i] = 0
+            else:
+              f1[i] = 2*precision[i]*recall[i]/(precision[i]+recall[i])
 
         self.train_generator.update_size(1 - f1)
 
