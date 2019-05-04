@@ -76,7 +76,7 @@ warmup:
 
 ## Reference
 
-[(Pouyanfar et al., 2018)](https://ieeexplore.ieee.org/document/8396983) Pouyanfar, Samira, Yudong Tao, Anup Mohan, Haiman Tian, Ahmed S. Kaseb, Kent Gauen, Ryan Dailey et al. "Dynamic sampling in convolutional neural networks for imbalanced data classification." In IEEE conference on multimedia information processing and retrieval, pp. 112-117. 2018.
+[(Pouyanfar et al., 2018)](https://ieeexplore.ieee.org/document/8396983) Pouyanfar, Samira, Yudong Tao, Anup Mohan, Haiman Tian, Ahmed S. Kaseb, Kent Gauen, Ryan Dailey, Sarah Aghajanzadeh, Yung-Hsiang Lu, Shu-Ching Chen, and Mei-Ling Shyu. "Dynamic sampling in convolutional neural networks for imbalanced data classification." In IEEE conference on multimedia information processing and retrieval, pp. 112-117. 2018.
 
 ```
 @inproceedings{DynamicSampling2018,
